@@ -234,12 +234,12 @@ textarea{resize:vertical;min-height:90px}
   box-shadow:0 -4px 24px rgba(99,102,241,.1);
 }
 .bnav-btn{
-  flex:1;padding:10px 4px 12px;background:none;border:none;color:var(--text3);
-  font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer;
-  display:flex;flex-direction:column;align-items:center;gap:4px;transition:color .2s;
+  flex:1;padding:8px 2px 10px;background:none;border:none;color:var(--text3);
+  font-size:8px;font-weight:700;letter-spacing:.5px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .2s;
   font-family:'Open Sans',sans-serif;text-transform:uppercase;transform:none;position:relative;
 }
-.bnav-btn .ni{font-size:20px;transition:transform .2s}
+.bnav-btn .ni{font-size:18px;transition:transform .2s}
 .bnav-btn:hover .ni{transform:translateY(-2px)}
 .bnav-btn.active{color:var(--indigo)}
 .bnav-btn::after{
@@ -529,6 +529,178 @@ textarea{resize:vertical;min-height:90px}
   </div>
 </div>
 
+<!-- PAGE YEAR -->
+<div class="page" id="page-year">
+  <div class="sh" style="margin-top:0">
+    <div class="sh-dot" style="background:var(--indigo)"></div>
+    <div class="sh-title">Year Progress — 2026</div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="stat-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="stat-box" style="background:#eef2ff"><span class="stat-val c-indigo" id="yr-total-days">0</span><span class="stat-lbl">Days Tracked</span></div>
+      <div class="stat-box" style="background:#f0fdf9"><span class="stat-val c-green" id="yr-perfect">0</span><span class="stat-lbl">Perfect Days</span></div>
+      <div class="stat-box" style="background:#fff7ed"><span class="stat-val c-orange" id="yr-streak">0</span><span class="stat-lbl">Best Streak</span></div>
+      <div class="stat-box" style="background:#f5f3ff"><span class="stat-val c-violet" id="yr-avg">0%</span><span class="stat-lbl">Avg Score</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:14px;padding:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <div style="font-family:'Roboto',sans-serif;font-size:13px;font-weight:700;color:var(--text2);letter-spacing:1px;text-transform:uppercase">Daily Completion Heatmap</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3);font-weight:600">
+        <span>Less</span>
+        <div style="width:12px;height:12px;border-radius:3px;background:#e2e8f0"></div>
+        <div style="width:12px;height:12px;border-radius:3px;background:#c7d2fe"></div>
+        <div style="width:12px;height:12px;border-radius:3px;background:#818cf8"></div>
+        <div style="width:12px;height:12px;border-radius:3px;background:#6366f1"></div>
+        <div style="width:12px;height:12px;border-radius:3px;background:#4338ca"></div>
+        <span>More</span>
+      </div>
+    </div>
+    <div id="heatmap-months" style="display:flex;margin-bottom:4px;padding-left:28px;overflow-x:auto"></div>
+    <div style="display:flex;gap:4px">
+      <div style="display:flex;flex-direction:column;gap:2px;margin-right:2px;flex-shrink:0">
+        <div style="height:14px"></div>
+        <div style="height:14px;font-size:9px;color:var(--text3);font-weight:600;line-height:14px">M</div>
+        <div style="height:14px"></div>
+        <div style="height:14px;font-size:9px;color:var(--text3);font-weight:600;line-height:14px">W</div>
+        <div style="height:14px"></div>
+        <div style="height:14px;font-size:9px;color:var(--text3);font-weight:600;line-height:14px">F</div>
+        <div style="height:14px"></div>
+      </div>
+      <div id="heatmap-grid" style="display:flex;gap:2px;overflow-x:auto;padding-bottom:4px;flex:1"></div>
+    </div>
+    <div id="hm-tooltip" style="display:none;position:fixed;background:#1e293b;color:#fff;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;pointer-events:none;z-index:300;box-shadow:0 4px 16px rgba(0,0,0,.2)"></div>
+  </div>
+  <div class="sh">
+    <div class="sh-dot" style="background:var(--violet)"></div>
+    <div class="sh-title">Monthly Breakdown</div>
+  </div>
+  <div class="card" style="padding:18px;margin-bottom:14px">
+    <div id="monthly-bars"></div>
+  </div>
+  <div class="sh">
+    <div class="sh-dot" style="background:var(--green)"></div>
+    <div class="sh-title">Category Completion Rate</div>
+  </div>
+  <div class="card" style="padding:20px">
+    <div id="cat-yearly"></div>
+  </div>
+</div>
+
+<!-- PAGE HISTORY -->
+<div class="page" id="page-history">
+
+  <div class="sh" style="margin-top:0">
+    <div class="sh-dot" style="background:var(--violet)"></div>
+    <div class="sh-title">Previous Days</div>
+  </div>
+
+  <!-- Day Picker Strip -->
+  <div class="card" style="padding:16px;margin-bottom:14px">
+    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px">📅 Pick a Day</div>
+    <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:6px" id="dayStrip"></div>
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="date" id="histDatePicker" style="max-width:180px;font-weight:600;color:var(--indigo)">
+      <button class="btn btn-primary" onclick="loadHistoryDay(document.getElementById('histDatePicker').value)">Go</button>
+    </div>
+  </div>
+
+  <!-- Selected Day Header -->
+  <div id="histDayHeader" style="display:none;margin-bottom:14px">
+    <div class="card" style="padding:18px 20px;background:linear-gradient(135deg,var(--violet),var(--pink));border:none;color:white">
+      <div style="font-family:'Roboto',sans-serif;font-size:18px;font-weight:900" id="histDayTitle"></div>
+      <div style="font-size:13px;opacity:.85;margin-top:3px" id="histDaySubtitle"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px">
+        <div style="text-align:center">
+          <div style="font-family:'Lato',sans-serif;font-size:26px;font-weight:900" id="histScore">0%</div>
+          <div style="font-size:9px;letter-spacing:2px;opacity:.75;font-weight:600">COMPLETION</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:'Lato',sans-serif;font-size:26px;font-weight:900" id="histDoneCount">0</div>
+          <div style="font-size:9px;letter-spacing:2px;opacity:.75;font-weight:600">TASKS DONE</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:'Lato',sans-serif;font-size:26px;font-weight:900" id="histCalTotal">0</div>
+          <div style="font-size:9px;letter-spacing:2px;opacity:.75;font-weight:600">CALORIES</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No data state -->
+  <div id="histNoData" style="display:none">
+    <div class="card" style="padding:36px;text-align:center">
+      <div style="font-size:40px;margin-bottom:12px">📭</div>
+      <div style="font-family:'Roboto',sans-serif;font-size:16px;font-weight:700;color:var(--text2)">No data for this day</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:6px">This day hasn't been tracked yet.</div>
+    </div>
+  </div>
+
+  <!-- Habits done that day -->
+  <div id="histHabitsSection" style="display:none">
+    <div class="sh">
+      <div class="sh-dot" style="background:var(--indigo)"></div>
+      <div class="sh-title">Habits Completed</div>
+      <div class="sh-count" id="histHabitCount"></div>
+    </div>
+    <div class="card" style="padding:14px">
+      <div id="histHabitList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
+
+  <!-- Calories that day -->
+  <div id="histCalSection" style="display:none">
+    <div class="sh">
+      <div class="sh-dot" style="background:var(--orange)"></div>
+      <div class="sh-title">Calories That Day</div>
+    </div>
+    <div class="card" style="padding:16px">
+      <!-- mini cal bar -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+        <div style="background:#eef2ff;border-radius:10px;padding:12px 8px;text-align:center">
+          <div style="font-family:'Lato',sans-serif;font-size:20px;font-weight:900;color:var(--indigo)" id="histCalEaten">0</div>
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--text3);font-weight:700;margin-top:3px">EATEN</div>
+        </div>
+        <div style="background:#f5f3ff;border-radius:10px;padding:12px 8px;text-align:center">
+          <div style="font-family:'Lato',sans-serif;font-size:20px;font-weight:900;color:var(--violet)" id="histCalGoalDay">0</div>
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--text3);font-weight:700;margin-top:3px">GOAL</div>
+        </div>
+        <div style="background:#fff7ed;border-radius:10px;padding:12px 8px;text-align:center">
+          <div style="font-family:'Lato',sans-serif;font-size:20px;font-weight:900" id="histCalDiff">0</div>
+          <div style="font-size:9px;letter-spacing:1.5px;color:var(--text3);font-weight:700;margin-top:3px" id="histCalDiffLbl">REMAINING</div>
+        </div>
+      </div>
+      <div style="height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-bottom:16px">
+        <div id="histCalBar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,var(--indigo),var(--violet),var(--pink));background-size:200%;transition:width .7s ease;width:0%"></div>
+      </div>
+      <div id="histMealList" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+  </div>
+
+  <!-- Workout that day -->
+  <div id="histWorkoutSection" style="display:none">
+    <div class="sh">
+      <div class="sh-dot" style="background:var(--red)"></div>
+      <div class="sh-title">Workout Log</div>
+    </div>
+    <div class="card" style="padding:16px">
+      <div id="histWorkoutNote" style="font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap"></div>
+    </div>
+  </div>
+
+  <!-- Notes that day -->
+  <div id="histNotesSection" style="display:none">
+    <div class="sh">
+      <div class="sh-dot" style="background:var(--blue)"></div>
+      <div class="sh-title">Notes & Goals</div>
+    </div>
+    <div class="card" style="padding:16px">
+      <div id="histNotesList" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+  </div>
+
+</div>
+
 </div>
 
 <!-- NAV -->
@@ -538,6 +710,8 @@ textarea{resize:vertical;min-height:90px}
   <button class="bnav-btn" onclick="goPage('workout',this)"><span class="ni">💪</span>Workout</button>
   <button class="bnav-btn" onclick="goPage('growth',this)"><span class="ni">📚</span>Growth</button>
   <button class="bnav-btn" onclick="goPage('hustle',this)"><span class="ni">💼</span>Hustle</button>
+  <button class="bnav-btn" onclick="goPage('history',this);buildHistoryPage()"><span class="ni">🕐</span>History</button>
+  <button class="bnav-btn" onclick="goPage('year',this);buildYearView()"><span class="ni">📅</span>Year</button>
 </div>
 <button class="fab" onclick="saveAll()" title="Save">💾</button>
 
@@ -662,6 +836,400 @@ function renderApps(){const list=document.getElementById('appList');list.innerHT
 function saveGrowth(){S.book=document.getElementById('currentBook')?.value||'';S.lang=document.getElementById('currentLang')?.value||'';S.skill=document.getElementById('skillNote')?.value||'';saveAll();toast('Notes saved 📚');}
 function saveHustle(){S.ytNote=document.getElementById('ytNote')?.value||'';S.igNote=document.getElementById('igNote')?.value||'';saveAll();toast('Notes saved 🎬');}
 function restoreUI(){if(S.workoutNote)document.getElementById('workoutNote').value=S.workoutNote;if(S.book)document.getElementById('currentBook').value=S.book;if(S.lang)document.getElementById('currentLang').value=S.lang;if(S.skill)document.getElementById('skillNote').value=S.skill;if(S.ytNote)document.getElementById('ytNote').value=S.ytNote;if(S.igNote)document.getElementById('igNote').value=S.igNote;if(S.calGoal)document.getElementById('calGoalIn').value=S.calGoal;syncG();}
+// ═══════════════════════════════════════
+// YEAR VIEW
+// ═══════════════════════════════════════
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const CAT_DEFS=[
+  {label:'Nutrition', ids:['water3L','fruit2','noJunk'], color:'var(--green)'},
+  {label:'Growth',    ids:['bookDone','langDone','skillDone'], color:'var(--blue)'},
+  {label:'Hustle',    ids:['jobApply','freApply','youtube','instagram'], color:'var(--violet)'},
+  {label:'Fitness',   ids:[], color:'var(--orange)'}, // uses wkDays
+];
+
+function getDayScore(dateKey){
+  // Try to load saved day data from localStorage
+  try {
+    const d = localStorage.getItem('dos_' + dateKey);
+    if (!d) return null; // never tracked
+    const dayData = JSON.parse(d);
+    const habits = [...BASE, ...(dayData.customHabits || [])];
+    const total = habits.length;
+    if (!total) return 0;
+    const done = habits.filter(h => dayData.checks && dayData.checks[h.id]).length;
+    return Math.round(done / total * 100);
+  } catch(e) { return null; }
+}
+
+function getHeatColor(pct){
+  if (pct === null) return '#e2e8f0'; // no data
+  if (pct === 0)   return '#f1f5f9';
+  if (pct < 30)    return '#c7d2fe';
+  if (pct < 60)    return '#818cf8';
+  if (pct < 85)    return '#6366f1';
+  return '#4338ca';
+}
+
+function buildYearView(){
+  const year = 2026;
+  const jan1 = new Date(year, 0, 1);
+  const dec31 = new Date(year, 11, 31);
+
+  // Collect all day scores for the year
+  const dayScores = {};
+  let d = new Date(jan1);
+  while (d <= dec31) {
+    const key = d.toISOString().split('T')[0];
+    dayScores[key] = getDayScore(key);
+    d.setDate(d.getDate() + 1);
+  }
+
+  // ── Stats ──
+  const tracked = Object.values(dayScores).filter(v => v !== null);
+  const perfect = tracked.filter(v => v === 100).length;
+  const avg = tracked.length ? Math.round(tracked.reduce((a,b) => a+b, 0) / tracked.length) : 0;
+
+  // Best streak
+  let bestStreak = 0, curStreak = 0;
+  d = new Date(jan1);
+  while (d <= dec31) {
+    const key = d.toISOString().split('T')[0];
+    const score = dayScores[key];
+    if (score !== null && score >= 50) { curStreak++; bestStreak = Math.max(bestStreak, curStreak); }
+    else curStreak = 0;
+    d.setDate(d.getDate() + 1);
+  }
+
+  document.getElementById('yr-total-days').textContent = tracked.length;
+  document.getElementById('yr-perfect').textContent = perfect;
+  document.getElementById('yr-streak').textContent = bestStreak;
+  document.getElementById('yr-avg').textContent = avg + '%';
+
+  // ── Heatmap ──
+  const grid = document.getElementById('heatmap-grid');
+  const monthLabels = document.getElementById('heatmap-months');
+  grid.innerHTML = ''; monthLabels.innerHTML = '';
+
+  // Start from Jan 1, pad to Monday
+  const startDay = jan1.getDay(); // 0=Sun
+  const padDays = startDay === 0 ? 6 : startDay - 1; // pad to Monday start
+
+  // Build weeks array
+  const allDays = [];
+  for (let i = 0; i < padDays; i++) allDays.push(null); // empty padding
+  d = new Date(jan1);
+  while (d <= dec31) {
+    allDays.push(new Date(d));
+    d.setDate(d.getDate() + 1);
+  }
+
+  // Group into weeks of 7
+  const weeks = [];
+  for (let i = 0; i < allDays.length; i += 7) weeks.push(allDays.slice(i, i+7));
+
+  // Month label positions
+  const monthPos = {};
+  weeks.forEach((week, wi) => {
+    week.forEach(day => {
+      if (day && day.getDate() === 1) monthPos[wi] = MONTHS[day.getMonth()];
+    });
+  });
+
+  // Build month label row
+  let labelHtml = '';
+  weeks.forEach((_, wi) => {
+    const lbl = monthPos[wi] || '';
+    labelHtml += `<div style="width:16px;flex-shrink:0;font-size:9px;font-weight:700;color:var(--text3);white-space:nowrap">${lbl}</div>`;
+  });
+  monthLabels.innerHTML = labelHtml;
+
+  // Build columns (weeks)
+  weeks.forEach(week => {
+    const col = document.createElement('div');
+    col.style.cssText = 'display:flex;flex-direction:column;gap:2px;flex-shrink:0';
+    while (week.length < 7) week.push(null); // pad last week
+    week.forEach(day => {
+      const cell = document.createElement('div');
+      cell.style.cssText = 'width:14px;height:14px;border-radius:3px;cursor:default;transition:transform .1s';
+      if (!day) {
+        cell.style.background = 'transparent';
+      } else {
+        const key = day.toISOString().split('T')[0];
+        const score = dayScores[key];
+        const isToday = key === TODAY;
+        cell.style.background = getHeatColor(score);
+        if (isToday) cell.style.outline = '2px solid var(--indigo)';
+        cell.style.cursor = 'pointer';
+        const dateStr = day.toLocaleDateString('en-IN',{month:'short',day:'numeric'});
+        const scoreStr = score === null ? 'No data' : score + '% complete';
+        cell.addEventListener('mouseenter', e => {
+          const tip = document.getElementById('hm-tooltip');
+          tip.textContent = dateStr + ' — ' + scoreStr;
+          tip.style.display = 'block';
+          tip.style.left = (e.clientX + 12) + 'px';
+          tip.style.top = (e.clientY - 32) + 'px';
+          cell.style.transform = 'scale(1.4)';
+        });
+        cell.addEventListener('mousemove', e => {
+          const tip = document.getElementById('hm-tooltip');
+          tip.style.left = (e.clientX + 12) + 'px';
+          tip.style.top = (e.clientY - 32) + 'px';
+        });
+        cell.addEventListener('mouseleave', () => {
+          document.getElementById('hm-tooltip').style.display = 'none';
+          cell.style.transform = 'scale(1)';
+        });
+      }
+      col.appendChild(cell);
+    });
+    grid.appendChild(col);
+  });
+
+  // ── Monthly bars ──
+  const monthlyData = Array.from({length:12}, (_,m) => {
+    const keys = Object.keys(dayScores).filter(k => new Date(k).getMonth() === m);
+    const vals = keys.map(k => dayScores[k]).filter(v => v !== null);
+    return { month: MONTHS[m], avg: vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0, days: vals.length, perfect: vals.filter(v=>v===100).length };
+  });
+
+  const mb = document.getElementById('monthly-bars');
+  mb.innerHTML = monthlyData.map((m,i) => {
+    const isCurrentMonth = i === new Date().getMonth();
+    return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div style="width:32px;font-size:11px;font-weight:700;color:${isCurrentMonth?'var(--indigo)':'var(--text3)'};flex-shrink:0">${m.month}</div>
+      <div style="flex:1;height:22px;background:#f1f5f9;border-radius:6px;overflow:hidden;position:relative">
+        <div style="height:100%;width:${m.avg}%;background:${m.avg>=80?'linear-gradient(90deg,var(--green),var(--teal))':m.avg>=50?'linear-gradient(90deg,var(--indigo),var(--violet))':'linear-gradient(90deg,#94a3b8,#cbd5e1)'};border-radius:6px;transition:width .6s ease;display:flex;align-items:center;padding-left:8px">
+          ${m.avg > 20 ? `<span style="font-size:10px;font-weight:700;color:white">${m.avg}%</span>` : ''}
+        </div>
+        ${m.avg <= 20 && m.avg > 0 ? `<span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;color:var(--text3)">${m.avg}%</span>` : ''}
+      </div>
+      <div style="font-size:10px;color:var(--text3);font-weight:600;width:70px;text-align:right;flex-shrink:0">${m.days} days • ${m.perfect}⭐</div>
+    </div>`;
+  }).join('');
+
+  // ── Category yearly rates ──
+  const cy = document.getElementById('cat-yearly');
+  const catDefs = [
+    {label:'💧 Nutrition',   ids:['water3L','fruit2','noJunk'],              color:'var(--green)'},
+    {label:'📚 Growth',      ids:['bookDone','langDone','skillDone'],         color:'var(--blue)'},
+    {label:'💼 Hustle',      ids:['jobApply','freApply','youtube','instagram'],color:'var(--violet)'},
+  ];
+
+  cy.innerHTML = catDefs.map(cat => {
+    // Average across all tracked days for this category
+    let total = 0, count = 0;
+    Object.keys(dayScores).forEach(key => {
+      try {
+        const data = localStorage.getItem('dos_' + key);
+        if (!data) return;
+        const dd = JSON.parse(data);
+        const done = cat.ids.filter(id => dd.checks && dd.checks[id]).length;
+        total += Math.round(done / cat.ids.length * 100);
+        count++;
+      } catch(e) {}
+    });
+    const rate = count ? Math.round(total / count) : 0;
+    return `<div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:13px;font-weight:700;color:var(--text)">${cat.label}</span>
+        <span style="font-family:'Lato',sans-serif;font-size:14px;font-weight:900;color:${cat.color}">${rate}%</span>
+      </div>
+      <div style="height:10px;background:#f1f5f9;border-radius:99px;overflow:hidden">
+        <div style="height:100%;width:${rate}%;background:${cat.color};border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1)"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px;font-weight:600">${count} days with data</div>
+    </div>`;
+  }).join('');
+}
+
+
+// ═══════════════════════════════════════
+// HISTORY PAGE
+// ═══════════════════════════════════════
+function buildHistoryPage() {
+  // Set date picker max to today
+  const picker = document.getElementById('histDatePicker');
+  picker.max = TODAY;
+  picker.value = '';
+
+  // Build last-30-days strip
+  const strip = document.getElementById('dayStrip');
+  strip.innerHTML = '';
+  for (let i = 1; i <= 30; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    const hasData = !!localStorage.getItem('dos_' + key);
+    const score = getDayScore(key);
+    const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+    const dayName = dayNames[d.getDay()];
+    const dateNum = d.getDate();
+    const monthShort = d.toLocaleDateString('en-IN', { month:'short' });
+
+    const chip = document.createElement('div');
+    chip.style.cssText = `
+      flex-shrink:0; width:52px; border-radius:12px; padding:10px 6px; text-align:center;
+      cursor:pointer; border:1.5px solid ${hasData ? (score>=80?'rgba(16,185,129,.4)':score>=50?'rgba(99,102,241,.35)':'rgba(148,163,184,.3)') : 'var(--border)'};
+      background:${hasData ? (score>=80?'#f0fdf9':score>=50?'#eef2ff':'#f8fafc') : 'var(--bg)'};
+      transition:all .2s;
+    `;
+    chip.innerHTML = `
+      <div style="font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--text3);text-transform:uppercase">${dayName}</div>
+      <div style="font-family:'Lato',sans-serif;font-size:16px;font-weight:900;color:${hasData?'var(--indigo)':'var(--text3)'}; margin:2px 0">${dateNum}</div>
+      <div style="font-size:8px;color:var(--text3);font-weight:600">${monthShort}</div>
+      ${hasData ? `<div style="margin-top:5px;height:4px;border-radius:99px;background:${score>=80?'var(--green)':score>=50?'var(--indigo)':'#94a3b8'};width:${score||10}%;margin-inline:auto"></div>` : '<div style="margin-top:5px;height:4px;border-radius:99px;background:var(--border)"></div>'}
+    `;
+    chip.onclick = () => {
+      document.querySelectorAll('#dayStrip > div').forEach(c => c.style.outline = 'none');
+      chip.style.outline = '2px solid var(--indigo)';
+      chip.style.outlineOffset = '2px';
+      loadHistoryDay(key);
+    };
+    strip.appendChild(chip);
+  }
+
+  // Reset view
+  document.getElementById('histDayHeader').style.display = 'none';
+  document.getElementById('histNoData').style.display = 'none';
+  document.getElementById('histHabitsSection').style.display = 'none';
+  document.getElementById('histCalSection').style.display = 'none';
+  document.getElementById('histWorkoutSection').style.display = 'none';
+  document.getElementById('histNotesSection').style.display = 'none';
+}
+
+function loadHistoryDay(dateKey) {
+  if (!dateKey) return;
+
+  const raw = localStorage.getItem('dos_' + dateKey);
+
+  // Show header always
+  const dateObj = new Date(dateKey + 'T00:00:00');
+  const dayLabel = dateObj.toLocaleDateString('en-IN', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  document.getElementById('histDayTitle').textContent = dayLabel;
+
+  if (!raw) {
+    document.getElementById('histDayHeader').style.display = 'none';
+    document.getElementById('histNoData').style.display = 'block';
+    document.getElementById('histHabitsSection').style.display = 'none';
+    document.getElementById('histCalSection').style.display = 'none';
+    document.getElementById('histWorkoutSection').style.display = 'none';
+    document.getElementById('histNotesSection').style.display = 'none';
+    return;
+  }
+
+  const data = JSON.parse(raw);
+  const habits = [...BASE, ...(data.customHabits || [])];
+  const total = habits.length;
+  const doneHabits = habits.filter(h => data.checks && data.checks[h.id]);
+  const score = total ? Math.round(doneHabits.length / total * 100) : 0;
+  const meals = data.meals || [];
+  const calTotal = meals.reduce((a, m) => a + m.cal, 0);
+
+  // Header
+  document.getElementById('histDayHeader').style.display = 'block';
+  document.getElementById('histNoData').style.display = 'none';
+  document.getElementById('histScore').textContent = score + '%';
+  document.getElementById('histDoneCount').textContent = doneHabits.length + ' / ' + total;
+  document.getElementById('histCalTotal').textContent = calTotal;
+  document.getElementById('histDaySubtitle').textContent =
+    score === 100 ? '🏆 Perfect day!' :
+    score >= 80   ? '🔥 Great day!' :
+    score >= 50   ? '👍 Decent progress' :
+    score > 0     ? '📈 Getting started' : '😴 Rest day';
+
+  // Habits
+  document.getElementById('histHabitsSection').style.display = 'block';
+  document.getElementById('histHabitCount').textContent = doneHabits.length + ' / ' + total;
+  const hl = document.getElementById('histHabitList');
+  hl.innerHTML = habits.map(h => {
+    const done = data.checks && data.checks[h.id];
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:${done?'#f0fdf9':'var(--bg)'};border:1.5px solid ${done?'rgba(16,185,129,.3)':'var(--border)'}">
+      <div style="width:20px;height:20px;border-radius:6px;background:${done?'var(--green)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:11px;color:white;flex-shrink:0;font-weight:700">${done?'✓':''}</div>
+      <div style="font-size:12px;font-weight:600;color:${done?'var(--green)':'var(--text3)'}">${h.icon} ${h.label}</div>
+    </div>`;
+  }).join('');
+
+  // Calories
+  document.getElementById('histCalSection').style.display = 'block';
+  const goal = data.calGoal || 2000;
+  const diff = goal - calTotal;
+  document.getElementById('histCalEaten').textContent = calTotal;
+  document.getElementById('histCalGoalDay').textContent = goal;
+  document.getElementById('histCalDiff').textContent = Math.abs(diff);
+  document.getElementById('histCalDiff').style.color = diff < 0 ? 'var(--pink)' : 'var(--orange)';
+  document.getElementById('histCalDiffLbl').textContent = diff < 0 ? 'OVER' : 'UNDER';
+  document.getElementById('histCalBar').style.width = Math.min(calTotal / goal * 100, 100) + '%';
+
+  // Meals list
+  const mlEl = document.getElementById('histMealList');
+  if (meals.length === 0) {
+    mlEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text3);font-size:13px">No meals logged</div>';
+  } else {
+    const typeName = { b:'Breakfast 🌅', l:'Lunch ☀️', d:'Dinner 🌙', s:'Snack 🍌' };
+    const typePill = { b:'pill-b', l:'pill-l', d:'pill-d', s:'pill-s' };
+    mlEl.innerHTML = meals.map(m => `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border)">
+        <span class="pill ${typePill[m.type]||'pill-s'}" style="font-size:9px">${(typeName[m.type]||'Snack 🍌').split(' ')[0]}</span>
+        <span style="flex:1;font-size:13px;font-weight:600;color:var(--text)">${m.name}</span>
+        <span style="font-family:'Lato',sans-serif;font-size:12px;font-weight:700;color:var(--orange)">${m.cal} kcal</span>
+      </div>`).join('');
+    // Calorie by meal type summary
+    const types = ['b','l','d','s'];
+    const typeLabels = ['Breakfast','Lunch','Dinner','Snacks'];
+    const summaryRows = types.map((t,i) => {
+      const total = meals.filter(m=>m.type===t).reduce((a,m)=>a+m.cal,0);
+      return total > 0 ? `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)">
+        <span style="color:var(--text2);font-weight:600">${typeLabels[i]}</span>
+        <span style="font-family:'Lato',sans-serif;font-weight:700;color:var(--text)">${total} kcal</span>
+      </div>` : '';
+    }).filter(Boolean).join('');
+    if (summaryRows) {
+      mlEl.innerHTML += `<div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:10px;border:1.5px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:8px">By Meal Type</div>
+        ${summaryRows}
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding-top:8px;margin-top:4px">
+          <span style="font-weight:700;color:var(--text)">Total</span>
+          <span style="font-family:'Lato',sans-serif;font-weight:900;color:var(--indigo)">${calTotal} kcal</span>
+        </div>
+      </div>`;
+    }
+  }
+
+  // Workout note
+  const wNote = data.workoutNote || '';
+  if (wNote.trim()) {
+    document.getElementById('histWorkoutSection').style.display = 'block';
+    document.getElementById('histWorkoutNote').textContent = wNote;
+  } else {
+    document.getElementById('histWorkoutSection').style.display = 'none';
+  }
+
+  // Notes
+  const notes = [];
+  if (data.book)  notes.push({ icon:'📖', label:'Book', val: data.book });
+  if (data.lang)  notes.push({ icon:'🌐', label:'Language', val: data.lang });
+  if (data.skill) notes.push({ icon:'🛠️', label:'Skill', val: data.skill });
+  if (data.ytNote) notes.push({ icon:'🎬', label:'YouTube', val: data.ytNote });
+  if (data.igNote) notes.push({ icon:'📸', label:'Instagram', val: data.igNote });
+
+  if (notes.length) {
+    document.getElementById('histNotesSection').style.display = 'block';
+    document.getElementById('histNotesList').innerHTML = notes.map(n => `
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border)">
+        <span style="font-size:18px;flex-shrink:0">${n.icon}</span>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">${n.label}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${n.val}</div>
+        </div>
+      </div>`).join('');
+  } else {
+    document.getElementById('histNotesSection').style.display = 'none';
+  }
+
+  // Scroll to header
+  document.getElementById('histDayHeader').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
 load();initDate();buildHabits();buildWeek();renderCal();renderApps();restoreUI();updateProg();
 </script>
 </body>
