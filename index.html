@@ -95,7 +95,7 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 .st-lbl{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:5px;display:block}
 
 /* SECTION HEADER */
-.sh{display:flex;align-items:center;gap:10px;margin:22px 0 10px}
+.sh{display:flex;align-items:center;gap:10px;margin:22px 0 10px;flex-wrap:wrap}
 .sh-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .sh-title{font-family:'Roboto',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2)}
 .sh-count{margin-left:auto;font-family:'Lato',sans-serif;font-size:12px;font-weight:700;color:var(--text3)}
@@ -592,7 +592,7 @@ textarea{resize:vertical;min-height:90px}
 
   <div class="sh" style="margin-top:0">
     <div class="sh-dot" style="background:var(--violet)"></div>
-    <div class="sh-title">Previous Days</div>
+    <div class="sh-title">History</div>
   </div>
 
   <!-- Day Picker Strip -->
@@ -601,102 +601,118 @@ textarea{resize:vertical;min-height:90px}
     <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:6px" id="dayStrip"></div>
     <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <input type="date" id="histDatePicker" style="max-width:180px;font-weight:600;color:var(--indigo)">
-      <button class="btn btn-primary" onclick="loadHistoryDay(document.getElementById('histDatePicker').value)">Go</button>
+      <button class="btn btn-primary" style="padding:10px 18px" onclick="loadHistoryDay(document.getElementById('histDatePicker').value)">Go →</button>
     </div>
   </div>
 
-  <!-- Selected Day Header -->
+  <!-- ── NO DATA STATE ── -->
+  <div id="histNoData" style="display:none;margin-bottom:14px">
+    <div class="card" style="padding:32px;text-align:center">
+      <div style="font-size:40px;margin-bottom:12px">📭</div>
+      <div style="font-family:'Roboto',sans-serif;font-size:15px;font-weight:700;color:var(--text2);margin-bottom:6px">No data for this day</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:18px">This day hasn't been tracked yet — you can create a blank entry and fill it in.</div>
+      <button class="btn btn-primary" style="margin:0 auto" onclick="createHistDay()">📝 Create Entry for This Day</button>
+    </div>
+  </div>
+
+  <!-- ── DAY SUMMARY CARD (shown after picking a day with data) ── -->
   <div id="histDayHeader" style="display:none;margin-bottom:14px">
-    <div class="card" style="padding:18px 20px;background:linear-gradient(135deg,var(--violet),var(--pink));border:none;color:white">
-      <div style="font-family:'Roboto',sans-serif;font-size:18px;font-weight:900" id="histDayTitle"></div>
-      <div style="font-size:13px;opacity:.85;margin-top:3px" id="histDaySubtitle"></div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px">
-        <div style="text-align:center">
-          <div style="font-family:'Lato',sans-serif;font-size:26px;font-weight:900" id="histScore">0%</div>
-          <div style="font-size:9px;letter-spacing:2px;opacity:.75;font-weight:600">COMPLETION</div>
+    <!-- Gradient summary -->
+    <div style="background:linear-gradient(135deg,var(--violet),var(--pink));border-radius:16px;padding:20px 20px 16px;color:white;margin-bottom:10px">
+      <div style="font-family:'Roboto',sans-serif;font-size:17px;font-weight:900" id="histDayTitle"></div>
+      <div style="font-size:12px;opacity:.85;margin-top:2px;margin-bottom:14px" id="histDaySubtitle"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        <div style="text-align:center;background:rgba(255,255,255,.15);border-radius:10px;padding:10px 4px">
+          <div style="font-family:'Lato',sans-serif;font-size:24px;font-weight:900" id="histScore">0%</div>
+          <div style="font-size:9px;letter-spacing:1.5px;opacity:.75;font-weight:600;margin-top:2px">DONE</div>
         </div>
-        <div style="text-align:center">
-          <div style="font-family:'Lato',sans-serif;font-size:26px;font-weight:900" id="histDoneCount">0</div>
-          <div style="font-size:9px;letter-spacing:2px;opacity:.75;font-weight:600">TASKS DONE</div>
+        <div style="text-align:center;background:rgba(255,255,255,.15);border-radius:10px;padding:10px 4px">
+          <div style="font-family:'Lato',sans-serif;font-size:24px;font-weight:900" id="histDoneCount">0</div>
+          <div style="font-size:9px;letter-spacing:1.5px;opacity:.75;font-weight:600;margin-top:2px">HABITS</div>
         </div>
-        <div style="text-align:center">
-          <div style="font-family:'Lato',sans-serif;font-size:26px;font-weight:900" id="histCalTotal">0</div>
-          <div style="font-size:9px;letter-spacing:2px;opacity:.75;font-weight:600">CALORIES</div>
+        <div style="text-align:center;background:rgba(255,255,255,.15);border-radius:10px;padding:10px 4px">
+          <div style="font-family:'Lato',sans-serif;font-size:24px;font-weight:900" id="histCalTotal">0</div>
+          <div style="font-size:9px;letter-spacing:1.5px;opacity:.75;font-weight:600;margin-top:2px">KCAL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BIG EDIT / SAVE BUTTONS — always visible -->
+    <div id="histViewBar" style="display:flex;gap:10px">
+      <button onclick="toggleHistEdit()" style="flex:1;padding:13px;border-radius:12px;border:2px solid var(--indigo);background:var(--indigo-l);color:var(--indigo);font-family:'Open Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s">
+        ✏️ Edit This Day
+      </button>
+    </div>
+    <div id="histEditBar" style="display:none;gap:10px">
+      <div style="background:linear-gradient(135deg,var(--amber),var(--orange));border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div style="color:white;font-weight:700;font-size:13px">✏️ Editing — <span id="histEditDateLabel" style="font-weight:500;font-size:12px"></span></div>
+        <div style="display:flex;gap:8px">
+          <button onclick="cancelHistEdit()" style="padding:8px 16px;border-radius:8px;border:1.5px solid rgba(255,255,255,.5);background:transparent;color:white;font-weight:700;font-size:12px;cursor:pointer">✕ Cancel</button>
+          <button onclick="saveHistEdit()" style="padding:8px 16px;border-radius:8px;border:none;background:white;color:var(--orange);font-weight:800;font-size:12px;cursor:pointer">💾 Save</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- No data state -->
-  <div id="histNoData" style="display:none">
-    <div class="card" style="padding:36px;text-align:center">
-      <div style="font-size:40px;margin-bottom:12px">📭</div>
-      <div style="font-family:'Roboto',sans-serif;font-size:16px;font-weight:700;color:var(--text2)">No data for this day</div>
-      <div style="font-size:13px;color:var(--text3);margin-top:6px">This day hasn't been tracked yet.</div>
-    </div>
-  </div>
-
-  <!-- Habits done that day -->
+  <!-- ── HABITS ── -->
   <div id="histHabitsSection" style="display:none">
-    <div class="sh">
-      <div class="sh-dot" style="background:var(--indigo)"></div>
-      <div class="sh-title">Habits Completed</div>
-      <div class="sh-count" id="histHabitCount"></div>
-    </div>
-    <div class="card" style="padding:14px">
-      <div id="histHabitList" style="display:flex;flex-direction:column;gap:8px"></div>
-    </div>
+    <div class="sh"><div class="sh-dot" style="background:var(--indigo)"></div><div class="sh-title">Habits</div><div class="sh-count" id="histHabitCount"></div></div>
+    <div class="card" style="padding:14px"><div id="histHabitList" style="display:flex;flex-direction:column;gap:8px"></div></div>
   </div>
 
-  <!-- Calories that day -->
+  <!-- ── CALORIES ── -->
   <div id="histCalSection" style="display:none">
-    <div class="sh">
-      <div class="sh-dot" style="background:var(--orange)"></div>
-      <div class="sh-title">Calories That Day</div>
-    </div>
+    <div class="sh"><div class="sh-dot" style="background:var(--orange)"></div><div class="sh-title">Calories</div></div>
     <div class="card" style="padding:16px">
-      <!-- mini cal bar -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
         <div style="background:#eef2ff;border-radius:10px;padding:12px 8px;text-align:center">
           <div style="font-family:'Lato',sans-serif;font-size:20px;font-weight:900;color:var(--indigo)" id="histCalEaten">0</div>
-          <div style="font-size:9px;letter-spacing:1.5px;color:var(--text3);font-weight:700;margin-top:3px">EATEN</div>
+          <div style="font-size:9px;letter-spacing:1px;color:var(--text3);font-weight:700;margin-top:3px">EATEN</div>
         </div>
         <div style="background:#f5f3ff;border-radius:10px;padding:12px 8px;text-align:center">
           <div style="font-family:'Lato',sans-serif;font-size:20px;font-weight:900;color:var(--violet)" id="histCalGoalDay">0</div>
-          <div style="font-size:9px;letter-spacing:1.5px;color:var(--text3);font-weight:700;margin-top:3px">GOAL</div>
+          <div style="font-size:9px;letter-spacing:1px;color:var(--text3);font-weight:700;margin-top:3px">GOAL</div>
         </div>
         <div style="background:#fff7ed;border-radius:10px;padding:12px 8px;text-align:center">
           <div style="font-family:'Lato',sans-serif;font-size:20px;font-weight:900" id="histCalDiff">0</div>
-          <div style="font-size:9px;letter-spacing:1.5px;color:var(--text3);font-weight:700;margin-top:3px" id="histCalDiffLbl">REMAINING</div>
+          <div style="font-size:9px;letter-spacing:1px;color:var(--text3);font-weight:700;margin-top:3px" id="histCalDiffLbl">LEFT</div>
         </div>
       </div>
-      <div style="height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-bottom:16px">
-        <div id="histCalBar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,var(--indigo),var(--violet),var(--pink));background-size:200%;transition:width .7s ease;width:0%"></div>
+      <div style="height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-bottom:14px">
+        <div id="histCalBar" style="height:100%;border-radius:99px;background:linear-gradient(90deg,var(--indigo),var(--violet),var(--pink));width:0%;transition:width .6s ease"></div>
       </div>
       <div id="histMealList" style="display:flex;flex-direction:column;gap:6px"></div>
+      <!-- Add meal row (edit mode only) -->
+      <div id="histAddMealRow" style="display:none;margin-top:12px;padding-top:12px;border-top:1.5px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">➕ Add Meal</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="histMealName" placeholder="Meal name" style="flex:2;min-width:110px">
+          <input type="number" id="histMealCal" placeholder="kcal" style="width:72px;flex:none">
+          <select id="histMealType" style="width:110px;flex:none">
+            <option value="b">🌅 Breakfast</option>
+            <option value="l">☀️ Lunch</option>
+            <option value="d">🌙 Dinner</option>
+            <option value="s">🍌 Snack</option>
+          </select>
+          <button onclick="histAddMeal()" style="padding:10px 16px;border-radius:8px;border:none;background:var(--orange);color:white;font-weight:700;font-size:13px;cursor:pointer">+ Add</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Workout that day -->
+  <!-- ── WORKOUT ── -->
   <div id="histWorkoutSection" style="display:none">
-    <div class="sh">
-      <div class="sh-dot" style="background:var(--red)"></div>
-      <div class="sh-title">Workout Log</div>
-    </div>
+    <div class="sh"><div class="sh-dot" style="background:var(--red)"></div><div class="sh-title">Workout</div></div>
     <div class="card" style="padding:16px">
       <div id="histWorkoutNote" style="font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap"></div>
+      <textarea id="histWorkoutEdit" style="display:none;width:100%;min-height:90px" placeholder="Workout notes..."></textarea>
     </div>
   </div>
 
-  <!-- Notes that day -->
+  <!-- ── NOTES ── -->
   <div id="histNotesSection" style="display:none">
-    <div class="sh">
-      <div class="sh-dot" style="background:var(--blue)"></div>
-      <div class="sh-title">Notes & Goals</div>
-    </div>
-    <div class="card" style="padding:16px">
-      <div id="histNotesList" style="display:flex;flex-direction:column;gap:10px"></div>
-    </div>
+    <div class="sh"><div class="sh-dot" style="background:var(--blue)"></div><div class="sh-title">Notes</div></div>
+    <div class="card" style="padding:16px"><div id="histNotesList" style="display:flex;flex-direction:column;gap:10px"></div></div>
   </div>
 
 </div>
@@ -1097,137 +1113,282 @@ function buildHistoryPage() {
   document.getElementById('histNotesSection').style.display = 'none';
 }
 
+// ── HISTORY STATE ──────────────────────────────
+let histCurrentKey = null;
+let histEditMode   = false;
+let histEditData   = null;
+
+function buildHistoryPage() {
+  const picker = document.getElementById('histDatePicker');
+  picker.max = TODAY; picker.value = '';
+  const strip = document.getElementById('dayStrip');
+  strip.innerHTML = '';
+  for (let i = 1; i <= 30; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    const hasData = !!localStorage.getItem('dos_' + key);
+    const score = getDayScore(key);
+    const dayNames = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+    const chip = document.createElement('div');
+    chip.style.cssText = `flex-shrink:0;width:52px;border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;border:1.5px solid ${hasData?(score>=80?'rgba(16,185,129,.4)':score>=50?'rgba(99,102,241,.35)':'rgba(148,163,184,.3)'):'var(--border)'};background:${hasData?(score>=80?'#f0fdf9':score>=50?'#eef2ff':'#f8fafc'):'var(--bg)'};transition:all .2s`;
+    chip.innerHTML = `<div style="font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--text3);text-transform:uppercase">${dayNames[d.getDay()]}</div><div style="font-family:'Lato',sans-serif;font-size:16px;font-weight:900;color:${hasData?'var(--indigo)':'var(--text3)'};margin:2px 0">${d.getDate()}</div><div style="font-size:8px;color:var(--text3);font-weight:600">${d.toLocaleDateString('en-IN',{month:'short'})}</div>${hasData?`<div style="margin-top:5px;height:4px;border-radius:99px;background:${score>=80?'var(--green)':score>=50?'var(--indigo)':'#94a3b8'};width:${score||10}%;margin-inline:auto"></div>`:'<div style="margin-top:5px;height:4px;border-radius:99px;background:var(--border)"></div>'}`;
+    chip.onclick = () => { document.querySelectorAll('#dayStrip > div').forEach(c=>c.style.outline='none'); chip.style.outline='2px solid var(--indigo)'; chip.style.outlineOffset='2px'; loadHistoryDay(key); };
+    strip.appendChild(chip);
+  }
+  histHide();
+}
+
+function histHide() {
+  ['histDayHeader','histNoData','histHabitsSection','histCalSection','histWorkoutSection','histNotesSection'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.style.display = 'none';
+  });
+}
+
 function loadHistoryDay(dateKey) {
   if (!dateKey) return;
+  histCurrentKey = dateKey;
+  histEditMode = false;
+  histEditData = null;
+
+  const dateObj = new Date(dateKey + 'T00:00:00');
+  document.getElementById('histDayTitle').textContent =
+    dateObj.toLocaleDateString('en-IN',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
 
   const raw = localStorage.getItem('dos_' + dateKey);
-
-  // Show header always
-  const dateObj = new Date(dateKey + 'T00:00:00');
-  const dayLabel = dateObj.toLocaleDateString('en-IN', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
-  document.getElementById('histDayTitle').textContent = dayLabel;
-
   if (!raw) {
-    document.getElementById('histDayHeader').style.display = 'none';
+    histHide();
     document.getElementById('histNoData').style.display = 'block';
-    document.getElementById('histHabitsSection').style.display = 'none';
-    document.getElementById('histCalSection').style.display = 'none';
-    document.getElementById('histWorkoutSection').style.display = 'none';
-    document.getElementById('histNotesSection').style.display = 'none';
+    // Change the "no data" message to include a create button
+    document.getElementById('histNoData').innerHTML = `
+      <div class="card" style="padding:32px;text-align:center">
+        <div style="font-size:40px;margin-bottom:12px">📭</div>
+        <div style="font-family:'Roboto',sans-serif;font-size:15px;font-weight:700;color:var(--text2);margin-bottom:6px">No data for this day</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:18px">This day hasn't been tracked yet.</div>
+        <button onclick="createHistDay()" style="padding:12px 24px;border-radius:10px;border:none;background:var(--indigo);color:white;font-weight:700;font-size:13px;cursor:pointer">📝 Create Entry for This Day</button>
+      </div>`;
     return;
   }
 
-  const data = JSON.parse(raw);
-  const habits = [...BASE, ...(data.customHabits || [])];
-  const total = habits.length;
-  const doneHabits = habits.filter(h => data.checks && data.checks[h.id]);
-  const score = total ? Math.round(doneHabits.length / total * 100) : 0;
-  const meals = data.meals || [];
-  const calTotal = meals.reduce((a, m) => a + m.cal, 0);
+  // Show edit button bar + render data
+  renderHistDay(JSON.parse(raw), false);
+  document.getElementById('histDayHeader').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 
-  // Header
+function renderHistDay(data, editMode) {
+  histEditMode = !!editMode;
+  const habits   = [...BASE,...(data.customHabits||[])];
+  const total    = habits.length;
+  const doneCnt  = habits.filter(h=>data.checks&&data.checks[h.id]).length;
+  const score    = total ? Math.round(doneCnt/total*100) : 0;
+  const meals    = data.meals||[];
+  const calTotal = meals.reduce((a,m)=>a+m.cal,0);
+
+  // ── Day header ──
   document.getElementById('histDayHeader').style.display = 'block';
-  document.getElementById('histNoData').style.display = 'none';
-  document.getElementById('histScore').textContent = score + '%';
-  document.getElementById('histDoneCount').textContent = doneHabits.length + ' / ' + total;
-  document.getElementById('histCalTotal').textContent = calTotal;
+  document.getElementById('histNoData').style.display    = 'none';
+  document.getElementById('histScore').textContent       = score+'%';
+  document.getElementById('histDoneCount').textContent   = doneCnt+' / '+total;
+  document.getElementById('histCalTotal').textContent    = calTotal;
   document.getElementById('histDaySubtitle').textContent =
-    score === 100 ? '🏆 Perfect day!' :
-    score >= 80   ? '🔥 Great day!' :
-    score >= 50   ? '👍 Decent progress' :
-    score > 0     ? '📈 Getting started' : '😴 Rest day';
+    score===100?'🏆 Perfect day!':score>=80?'🔥 Great day!':score>=50?'👍 Decent progress':score>0?'📈 Getting started':'😴 Rest day';
 
-  // Habits
+  // ── Edit/Save bar toggle ──
+  document.getElementById('histViewBar').style.display  = editMode ? 'none' : 'flex';
+  document.getElementById('histEditBar').style.display  = editMode ? 'flex' : 'none';
+  if (editMode) {
+    const d = new Date(histCurrentKey+'T00:00:00');
+    document.getElementById('histEditDateLabel').textContent =
+      d.toLocaleDateString('en-IN',{weekday:'short',month:'short',day:'numeric'});
+  }
+
+  // ── Habits ──
   document.getElementById('histHabitsSection').style.display = 'block';
-  document.getElementById('histHabitCount').textContent = doneHabits.length + ' / ' + total;
+  document.getElementById('histHabitCount').textContent = doneCnt+' / '+total;
   const hl = document.getElementById('histHabitList');
   hl.innerHTML = habits.map(h => {
-    const done = data.checks && data.checks[h.id];
-    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:${done?'#f0fdf9':'var(--bg)'};border:1.5px solid ${done?'rgba(16,185,129,.3)':'var(--border)'}">
-      <div style="width:20px;height:20px;border-radius:6px;background:${done?'var(--green)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:11px;color:white;flex-shrink:0;font-weight:700">${done?'✓':''}</div>
-      <div style="font-size:12px;font-weight:600;color:${done?'var(--green)':'var(--text3)'}">${h.icon} ${h.label}</div>
-    </div>`;
-  }).join('');
-
-  // Calories
-  document.getElementById('histCalSection').style.display = 'block';
-  const goal = data.calGoal || 2000;
-  const diff = goal - calTotal;
-  document.getElementById('histCalEaten').textContent = calTotal;
-  document.getElementById('histCalGoalDay').textContent = goal;
-  document.getElementById('histCalDiff').textContent = Math.abs(diff);
-  document.getElementById('histCalDiff').style.color = diff < 0 ? 'var(--pink)' : 'var(--orange)';
-  document.getElementById('histCalDiffLbl').textContent = diff < 0 ? 'OVER' : 'UNDER';
-  document.getElementById('histCalBar').style.width = Math.min(calTotal / goal * 100, 100) + '%';
-
-  // Meals list
-  const mlEl = document.getElementById('histMealList');
-  if (meals.length === 0) {
-    mlEl.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text3);font-size:13px">No meals logged</div>';
-  } else {
-    const typeName = { b:'Breakfast 🌅', l:'Lunch ☀️', d:'Dinner 🌙', s:'Snack 🍌' };
-    const typePill = { b:'pill-b', l:'pill-l', d:'pill-d', s:'pill-s' };
-    mlEl.innerHTML = meals.map(m => `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border)">
-        <span class="pill ${typePill[m.type]||'pill-s'}" style="font-size:9px">${(typeName[m.type]||'Snack 🍌').split(' ')[0]}</span>
-        <span style="flex:1;font-size:13px;font-weight:600;color:var(--text)">${m.name}</span>
-        <span style="font-family:'Lato',sans-serif;font-size:12px;font-weight:700;color:var(--orange)">${m.cal} kcal</span>
-      </div>`).join('');
-    // Calorie by meal type summary
-    const types = ['b','l','d','s'];
-    const typeLabels = ['Breakfast','Lunch','Dinner','Snacks'];
-    const summaryRows = types.map((t,i) => {
-      const total = meals.filter(m=>m.type===t).reduce((a,m)=>a+m.cal,0);
-      return total > 0 ? `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)">
-        <span style="color:var(--text2);font-weight:600">${typeLabels[i]}</span>
-        <span style="font-family:'Lato',sans-serif;font-weight:700;color:var(--text)">${total} kcal</span>
-      </div>` : '';
-    }).filter(Boolean).join('');
-    if (summaryRows) {
-      mlEl.innerHTML += `<div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:10px;border:1.5px solid var(--border)">
-        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:8px">By Meal Type</div>
-        ${summaryRows}
-        <div style="display:flex;justify-content:space-between;font-size:13px;padding-top:8px;margin-top:4px">
-          <span style="font-weight:700;color:var(--text)">Total</span>
-          <span style="font-family:'Lato',sans-serif;font-weight:900;color:var(--indigo)">${calTotal} kcal</span>
+    const done = !!(data.checks && data.checks[h.id]);
+    if (editMode) {
+      return `<div onclick="histToggleHabit('${h.id}')" id="hhab_${h.id}"
+        style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;
+               background:${done?'#f0fdf9':'var(--bg)'};border:2px solid ${done?'rgba(16,185,129,.45)':'var(--border)'};
+               cursor:pointer;user-select:none;transition:all .15s">
+        <div id="hhabbox_${h.id}" style="width:24px;height:24px;border-radius:7px;background:${done?'var(--green)':'#e2e8f0'};
+             display:flex;align-items:center;justify-content:center;font-size:13px;color:white;flex-shrink:0;font-weight:900">
+          ${done?'✓':''}
+        </div>
+        <div style="flex:1;font-size:13px;font-weight:600;color:${done?'var(--green)':'var(--text2)'}">
+          ${h.icon} ${h.label}
+        </div>
+        <div style="font-size:11px;font-weight:700;color:${done?'var(--green)':'var(--text3)'}">
+          ${done?'✅':'○'}
+        </div>
+      </div>`;
+    } else {
+      return `<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;
+                background:${done?'#f0fdf9':'var(--bg)'};border:1.5px solid ${done?'rgba(16,185,129,.3)':'var(--border)'}">
+        <div style="width:20px;height:20px;border-radius:6px;background:${done?'var(--green)':'var(--border)'};
+             display:flex;align-items:center;justify-content:center;font-size:11px;color:white;flex-shrink:0;font-weight:700">
+          ${done?'✓':''}
+        </div>
+        <div style="font-size:12px;font-weight:600;color:${done?'var(--green)':'var(--text3)'}">
+          ${h.icon} ${h.label}
         </div>
       </div>`;
     }
-  }
+  }).join('');
 
-  // Workout note
-  const wNote = data.workoutNote || '';
-  if (wNote.trim()) {
+  // ── Calories ──
+  document.getElementById('histCalSection').style.display = 'block';
+  const goal = data.calGoal||2000;
+  const diff = goal - calTotal;
+  document.getElementById('histCalEaten').textContent   = calTotal;
+  document.getElementById('histCalGoalDay').textContent = goal;
+  document.getElementById('histCalDiff').textContent    = Math.abs(diff);
+  document.getElementById('histCalDiff').style.color    = diff<0?'var(--pink)':'var(--orange)';
+  document.getElementById('histCalDiffLbl').textContent = diff<0?'OVER':'LEFT';
+  setTimeout(()=>{ document.getElementById('histCalBar').style.width = Math.min(calTotal/goal*100,100)+'%'; },50);
+
+  const typeName = {b:'Breakfast 🌅',l:'Lunch ☀️',d:'Dinner 🌙',s:'Snack 🍌'};
+  const typePill = {b:'pill-b',l:'pill-l',d:'pill-d',s:'pill-s'};
+  const mlEl = document.getElementById('histMealList');
+  if (meals.length === 0) {
+    mlEl.innerHTML = '<div style="text-align:center;padding:14px;color:var(--text3);font-size:12px">No meals logged</div>';
+  } else {
+    mlEl.innerHTML = meals.map(m => `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border)">
+        <span class="pill ${typePill[m.type]||'pill-s'}" style="font-size:9px">${(typeName[m.type]||'Snack').split(' ')[0]}</span>
+        <span style="flex:1;font-size:13px;font-weight:600;color:var(--text)">${m.name}</span>
+        <span style="font-family:'Lato',sans-serif;font-size:12px;font-weight:700;color:var(--orange)">${m.cal} kcal</span>
+        ${editMode?`<button onclick="histDelMeal(${m.id})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;padding:0 4px;line-height:1">×</button>`:''}
+      </div>`).join('');
+    if (!editMode) {
+      const rows = ['b','l','d','s'].map((t,i)=>{
+        const tot=meals.filter(m=>m.type===t).reduce((a,m)=>a+m.cal,0);
+        return tot>0?`<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2);font-weight:600">${['Breakfast','Lunch','Dinner','Snacks'][i]}</span><span style="font-family:'Lato',sans-serif;font-weight:700">${tot} kcal</span></div>`:''
+      }).filter(Boolean).join('');
+      if(rows) mlEl.innerHTML += `<div style="margin-top:10px;padding:12px;background:var(--bg);border-radius:10px;border:1.5px solid var(--border)">${rows}<div style="display:flex;justify-content:space-between;font-size:13px;padding-top:8px;margin-top:4px"><span style="font-weight:700">Total</span><span style="font-family:'Lato',sans-serif;font-weight:900;color:var(--indigo)">${calTotal} kcal</span></div></div>`;
+    }
+  }
+  document.getElementById('histAddMealRow').style.display = editMode ? 'block' : 'none';
+
+  // ── Workout ──
+  const wNote = data.workoutNote||'';
+  if (wNote.trim() || editMode) {
     document.getElementById('histWorkoutSection').style.display = 'block';
-    document.getElementById('histWorkoutNote').textContent = wNote;
+    const wd = document.getElementById('histWorkoutNote');
+    const we = document.getElementById('histWorkoutEdit');
+    if (editMode) { wd.style.display='none'; we.style.display='block'; we.value=wNote; }
+    else          { wd.style.display='block'; we.style.display='none'; wd.textContent=wNote; }
   } else {
     document.getElementById('histWorkoutSection').style.display = 'none';
   }
 
-  // Notes
-  const notes = [];
-  if (data.book)  notes.push({ icon:'📖', label:'Book', val: data.book });
-  if (data.lang)  notes.push({ icon:'🌐', label:'Language', val: data.lang });
-  if (data.skill) notes.push({ icon:'🛠️', label:'Skill', val: data.skill });
-  if (data.ytNote) notes.push({ icon:'🎬', label:'YouTube', val: data.ytNote });
-  if (data.igNote) notes.push({ icon:'📸', label:'Instagram', val: data.igNote });
-
-  if (notes.length) {
+  // ── Notes ──
+  const noteFields = [
+    {key:'book',icon:'📖',label:'Book'},{key:'lang',icon:'🌐',label:'Language'},
+    {key:'skill',icon:'🛠️',label:'Skill'},{key:'ytNote',icon:'🎬',label:'YouTube'},{key:'igNote',icon:'📸',label:'Instagram'}
+  ];
+  const nl = document.getElementById('histNotesList');
+  if (editMode) {
     document.getElementById('histNotesSection').style.display = 'block';
-    document.getElementById('histNotesList').innerHTML = notes.map(n => `
-      <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border)">
-        <span style="font-size:18px;flex-shrink:0">${n.icon}</span>
-        <div>
-          <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">${n.label}</div>
-          <div style="font-size:13px;font-weight:600;color:var(--text)">${n.val}</div>
+    nl.innerHTML = noteFields.map(n=>`
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:18px">${n.icon}</span>
+        <div style="flex:1">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">${n.label}</div>
+          <input type="text" id="hnote_${n.key}" value="${(data[n.key]||'').replace(/"/g,'&quot;')}" placeholder="${n.label} note..."
+            style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);background:var(--bg)">
         </div>
       </div>`).join('');
   } else {
-    document.getElementById('histNotesSection').style.display = 'none';
+    const notes = noteFields.filter(n=>data[n.key]);
+    if (notes.length) {
+      document.getElementById('histNotesSection').style.display = 'block';
+      nl.innerHTML = notes.map(n=>`
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border)">
+          <span style="font-size:18px">${n.icon}</span>
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">${n.label}</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">${data[n.key]}</div>
+          </div>
+        </div>`).join('');
+    } else {
+      document.getElementById('histNotesSection').style.display = 'none';
+    }
   }
+}
 
-  // Scroll to header
-  document.getElementById('histDayHeader').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+function toggleHistEdit() {
+  if (!histCurrentKey) return;
+  const raw = localStorage.getItem('dos_'+histCurrentKey);
+  if (!raw) return;
+  histEditData = JSON.parse(raw);
+  renderHistDay(histEditData, true);
+}
+
+function cancelHistEdit() {
+  histEditMode = false;
+  histEditData = null;
+  if (histCurrentKey) loadHistoryDay(histCurrentKey);
+}
+
+function histToggleHabit(id) {
+  if (!histEditData) return;
+  if (!histEditData.checks) histEditData.checks = {};
+  histEditData.checks[id] = !histEditData.checks[id];
+  const done = histEditData.checks[id];
+  const card = document.getElementById('hhab_'+id);
+  const box  = document.getElementById('hhabbox_'+id);
+  if (card) { card.style.background=done?'#f0fdf9':'var(--bg)'; card.style.borderColor=done?'rgba(16,185,129,.45)':'var(--border)'; }
+  if (box)  { box.style.background=done?'var(--green)':'#e2e8f0'; box.textContent=done?'✓':''; }
+  // Update score live
+  const habits=[...BASE,...(histEditData.customHabits||[])];
+  const cnt=habits.filter(h=>histEditData.checks&&histEditData.checks[h.id]).length;
+  document.getElementById('histScore').textContent=Math.round(cnt/habits.length*100)+'%';
+  document.getElementById('histDoneCount').textContent=cnt+' / '+habits.length;
+}
+
+function histDelMeal(id) {
+  if (!histEditData) return;
+  histEditData.meals=(histEditData.meals||[]).filter(m=>m.id!==id);
+  renderHistDay(histEditData,true);
+}
+
+function histAddMeal() {
+  const name=document.getElementById('histMealName').value.trim();
+  const cal=parseInt(document.getElementById('histMealCal').value)||0;
+  const type=document.getElementById('histMealType').value;
+  if(!name||!cal){toast('⚠️ Enter name & calories');return;}
+  if(!histEditData.meals)histEditData.meals=[];
+  histEditData.meals.push({name,cal,type,id:Date.now()});
+  document.getElementById('histMealName').value='';
+  document.getElementById('histMealCal').value='';
+  renderHistDay(histEditData,true);
+}
+
+function saveHistEdit() {
+  if (!histEditData||!histCurrentKey) return;
+  ['book','lang','skill','ytNote','igNote'].forEach(k=>{
+    const el=document.getElementById('hnote_'+k);
+    if(el) histEditData[k]=el.value.trim();
+  });
+  const we=document.getElementById('histWorkoutEdit');
+  if(we&&we.style.display!=='none') histEditData.workoutNote=we.value;
+  localStorage.setItem('dos_'+histCurrentKey,JSON.stringify(histEditData));
+  if(histCurrentKey===TODAY){S={...S,...histEditData};buildHabits();renderCal();updateProg();restoreUI();}
+  histEditData=null;
+  loadHistoryDay(histCurrentKey);
+  buildHistoryPage();
+  toast('✅ Changes saved!');
+}
+
+function createHistDay() {
+  if (!histCurrentKey) return;
+  const blank={calGoal:S.calGoal||2000,meals:[],checks:{},wkDays:{},workoutNote:'',book:'',lang:'',skill:'',apps:[],ytNote:'',igNote:'',customHabits:S.customHabits||[]};
+  localStorage.setItem('dos_'+histCurrentKey,JSON.stringify(blank));
+  loadHistoryDay(histCurrentKey);
+  setTimeout(toggleHistEdit,100);
+  toast('📝 Entry created!');
 }
 
 load();initDate();buildHabits();buildWeek();renderCal();renderApps();restoreUI();updateProg();
